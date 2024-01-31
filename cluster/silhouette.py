@@ -24,19 +24,39 @@ class Silhouette:
             np.ndarray
                 a 1D array with the silhouette scores for each of the observations in `X`
         """
+        
+        ''' Edge case checks '''
+        if X.size == 0 or y.size == 0:
+            raise ValueError(f'X or y can not be empty. Currently: X.size = {X.size} and y.size = {y.size}')
+
+        if X.ndim != 2 or y.ndim != 1:
+            raise ValueError(f'X must be a 2D array and y must be a 1D array. Currently: X.ndim = {X.ndim} and y.ndim = {y.ndim}')
+        
+        if X.shape[0] != y.shape[0]:
+            raise ValueError(f'The number of columns in X must match the length of y. Currently: X.shape[0] = {X.shape[0]} and y.shape[0] = {y.shape[0]}')
+        
+        if len(set(y)) <= 1:
+            raise ValueError(f"By definition, silhouette scoring is comparative to other clusters. Thus, can't compute for number of labels <= 1. Currently: len(set(y)) == {len(set(y))}")
+        
         Si_list = []
         for n in range(X.shape[0]):
             n_point = X[ n, : ].reshape(1, -1) # slice data to get n'th data point, reshape to be 2D
             n_point_label = y[n]
 
             # find ai (mean dist of current point to all points in cluster)
-            in_cluster_points = X[y == n_point_label]
             
-            # delete working from list of distances to make, by column wise search
-            in_cluster_points = np.delete(in_cluster_points, np.where(in_cluster_points == n_point), axis=0)
+            # make subset of X that has all values with n_point_label and excludes n'th entry
+            mask = (y == n_point_label) & (np.arange(X.shape[0]) != n)
+            in_cluster_points = X[mask]
 
-            # mean along rows, which I think is what I want
-            ai = cdist(n_point , in_cluster_points).mean(axis=1)
+            
+            # first, check if in_cluster_points is empty
+            if in_cluster_points.size == 0:
+                ai = 0
+            else:
+                # mean along rows, which I think is what I want
+                ai = cdist(n_point, in_cluster_points).mean(axis=1)
+            
 
             # find bi (the max of all mean dist of current point to all points in their respective clusters
             potential_bi = []
@@ -46,13 +66,25 @@ class Silhouette:
                     continue
 
                 out_cluster_points = X[y == k]
+
+                # skip if no points in out_cluster_points
+                if out_cluster_points.size == 0:
+                    continue
                 
                 working_bi = cdist(n_point , out_cluster_points).mean(axis=1)
                 potential_bi.append(working_bi)
             
-            bi = min(potential_bi)
+            # in case all bi's got skipped...
+            if potential_bi:
+                bi = min(potential_bi)
+            else:
+                bi = 0
 
-            nth_Si = (bi - ai) / max(ai, bi)
+            # this avoid RuntimeWarning error, I think
+            if ai == 0 and bi == 0:
+                nth_Si = 0
+            else:
+                nth_Si = (bi - ai) / max(ai, bi)
 
             Si_list.append(nth_Si)
         
