@@ -24,3 +24,33 @@ class Silhouette:
             np.ndarray
                 a 1D array with the silhouette scores for each of the observations in `X`
         """
+        Si_list = []
+        for n in range(X.shape[0]):
+            n_point = X[ n, : ].reshape(1, -1) # slice data to get n'th data point, reshape to be 2D
+            n_point_label = y[n]
+
+            # find ai (mean dist of current point to all points in cluster)
+            in_cluster_points = X[y == n_point_label]
+            in_cluster_points = np.delete(in_cluster_points, np.where(in_cluster_points == n_point), axis=0) # delete working from list of distances to make, by column wise search
+            ai = cdist(n_point , in_cluster_points).mean(axis=1) # mean along rows, which I think is what I want
+
+            # find bi (the max of all mean dist of current point to all points in their respective clusters
+            potential_bi = []
+            for k in set(y):
+                in_cluster_points = X[y == k]
+                in_cluster_points = np.delete(in_cluster_points, np.where(in_cluster_points == n_point), axis=0)
+                
+                working_bi = cdist(n_point , in_cluster_points).mean(axis=1)
+                potential_bi.append(working_bi)
+            
+            bi = max(potential_bi)
+
+            nth_Si = (ai - bi) / max(ai, bi)
+
+            Si_list.append(nth_Si)
+        
+        return np.array(Si_list)
+
+
+
+
