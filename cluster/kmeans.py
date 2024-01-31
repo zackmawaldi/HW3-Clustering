@@ -23,6 +23,9 @@ class KMeans:
         self.k = k
         self.tol = tol
         self.max_iter = max_iter
+        self.centroids = None
+        self.loss_over_time = None
+        self.fitted_shape = None
 
     def fit(self, mat: np.ndarray):
         """
@@ -72,6 +75,7 @@ class KMeans:
         
         self.centroids = k_matrix
         self.loss_over_time = loss_over_time
+        self.fitted_shape = mat.shape
 
     def predict(self, mat: np.ndarray) -> np.ndarray:
         """
@@ -90,6 +94,13 @@ class KMeans:
                 a 1D array with the cluster label for each of the observations in `mat`
         """
 
+        if not self.fitted_shape:
+            print('KMeans.fit() was not run before this command. Running KMeans.fit() on inputted matrix')
+            self.fit(mat)
+        
+        if self.fitted_shape != mat.shape:
+            raise ValueError(f'KMeans.fit() shaped of {self.fitted_shape} and your inputted shape of {mat.shape} do not match!')
+        
         centroids = self.centroids
         distances = cdist(mat, centroids)
         predictions = np.argmin(distances, axis=1)
@@ -106,6 +117,10 @@ class KMeans:
             float
                 the squared-mean error of the fit model
         """
+        if not self.loss_over_time:
+            raise LookupError('KMeans.fit() has not been run before!')
+        
+        return self.loss_over_time[-1]
 
     def get_centroids(self) -> np.ndarray:
         """
@@ -115,3 +130,7 @@ class KMeans:
             np.ndarray
                 a `k x m` 2D matrix representing the cluster centroids of the fit model
         """
+        if not self.centroids:
+            raise LookupError('KMeans.fit() has not been run before!')
+        
+        return self.centroids
