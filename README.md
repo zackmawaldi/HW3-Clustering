@@ -1,3 +1,4 @@
+[![project3](https://github.com/zackmawaldi/HW3-Clustering/actions/workflows/test.yml/badge.svg)](https://github.com/zackmawaldi/HW3-Clustering/actions/workflows/test.yml)
 # Assignment 3
 Implementation of KMeans and Silhouette Scoring
 
@@ -84,8 +85,8 @@ scores = silhouette.score(labels)
   [X] Silhouette Class -- make sure to test against sklearn
 
 [ TODO ] Packaging  
-  [ ] pip installable module  
-  [ ] github actions (install + pytest)  
+  [X] pip installable module  
+  [X] github actions (install + pytest)  
 
 For those who are particularly interested: try to implement the [k-means++](https://en.wikipedia.org/wiki/K-means%2B%2B) initialization algorithm. This is a method used in sklearn to initialize the clusters to best guesses and dramatically increases the speed of convergence for the algorithm.
 
