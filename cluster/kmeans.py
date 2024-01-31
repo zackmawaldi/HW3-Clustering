@@ -20,6 +20,9 @@ class KMeans:
             max_iter: int
                 the maximum number of iterations before quitting model fit
         """
+        self.k = k
+        self.tol = tol
+        self.max_iter = max_iter
 
     def fit(self, mat: np.ndarray):
         """
@@ -36,6 +39,34 @@ class KMeans:
             mat: np.ndarray
                 A 2D matrix where the rows are observations and columns are features
         """
+        k = self.k
+        data_dim = mat.shape[1] # columns = dimentions
+        k_matrix = np.random.rand(k , data_dim) # consider selecting random data points for initialization
+        loss_over_time = []
+
+        for _ in range(self.max_iter):
+
+            distances = cdist(mat, k_matrix)
+
+            nth_centroid = np.argmin(distances, axis=1) # row wise find lowest distance
+
+            # find new centroids
+            for i in range(k):
+                current_k_datapoints = mat[nth_centroid == i]
+                
+                # check that it's not emprty, then average (new k)
+                if len(current_k_datapoints) > 0:
+                    k_matrix[i] = current_k_datapoints.mean(axis=0) # do mean column wise along all datapoints
+
+
+            SSE_loss = 0
+            for m, n in enumerate(nth_centroid):
+                SSE_loss += distances[m][n]
+            
+            loss_over_time.append(SSE_loss)
+        
+        self.centroids = k_matrix
+        self.loss_over_time = loss_over_time
 
     def predict(self, mat: np.ndarray) -> np.ndarray:
         """
@@ -53,6 +84,13 @@ class KMeans:
             np.ndarray
                 a 1D array with the cluster label for each of the observations in `mat`
         """
+
+        centroids = self.centroids
+        distances = cdist(mat, centroids)
+        predictions = np.argmin(distances, axis=1)
+
+        return predictions
+
 
     def get_error(self) -> float:
         """
