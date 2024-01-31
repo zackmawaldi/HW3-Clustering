@@ -80,7 +80,7 @@ scores = silhouette.score(labels)
   [X] complete the `score` method  
 
 [ TODO ] Unit Testing  
-  [ ] KMeans Class  
+  [X] KMeans Class  
   [ ] Silhouette Class -- make sure to test against sklearn
 
 [ TODO ] Packaging  
