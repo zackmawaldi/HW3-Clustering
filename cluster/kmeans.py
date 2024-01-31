@@ -20,6 +20,15 @@ class KMeans:
             max_iter: int
                 the maximum number of iterations before quitting model fit
         """
+        if tol < 0:
+            raise ValueError("Tolerance is {tol}, which is less than 0. You'd be stuck in a loop!")
+        
+        if max_iter <= 0:
+            raise ValueError("Max iterations is {max_iter}. Where's the logic in that!")
+        
+        if k < 1:
+            raise ValueError(f'Inputted k is less than 1. Can not have {k} clusters.')
+        
         self.k = k
         self.tol = tol
         self.max_iter = max_iter
@@ -42,6 +51,13 @@ class KMeans:
             mat: np.ndarray
                 A 2D matrix where the rows are observations and columns are features
         """
+        
+        if mat.ndim != 2:
+            raise ValueError(f'Inputted matrix must be two dimentional, where m = number data, n = features. Inputted ndim is {mat.ndim}.')
+        
+        if self.k > mat.shape[0]:
+            raise ValueError(f'Inputted k greater than number of datapoints. {self.k} > {mat.shape[0]}.')
+
         k = self.k
         data_dim = mat.shape[1] # columns = dimentions
         k_matrix = np.random.rand(k , data_dim) # consider selecting random data points for initialization
@@ -95,11 +111,10 @@ class KMeans:
         """
 
         if not self.fitted_shape:
-            print('KMeans.fit() was not run before this command. Running KMeans.fit() on inputted matrix')
-            self.fit(mat)
+            raise ValueError('KMeans.fit() was not run before this command.')
         
-        if self.fitted_shape != mat.shape:
-            raise ValueError(f'KMeans.fit() shaped of {self.fitted_shape} and your inputted shape of {mat.shape} do not match!')
+        if self.fitted_shape[1] != mat.shape[1]:
+            raise ValueError(f'Fitted matrix row count of {self.fitted_shape[1]} and your row count {mat.shape[1]} do not match!')
         
         centroids = self.centroids
         distances = cdist(mat, centroids)
@@ -130,7 +145,9 @@ class KMeans:
             np.ndarray
                 a `k x m` 2D matrix representing the cluster centroids of the fit model
         """
-        if not self.centroids:
+        if self.centroids is None:
             raise LookupError('KMeans.fit() has not been run before!')
         
         return self.centroids
+        
+        
