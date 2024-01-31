@@ -81,7 +81,7 @@ scores = silhouette.score(labels)
 
 [ TODO ] Unit Testing  
   [X] KMeans Class  
-  [ ] Silhouette Class -- make sure to test against sklearn
+  [X] Silhouette Class -- make sure to test against sklearn
 
 [ TODO ] Packaging  
   [ ] pip installable module  
