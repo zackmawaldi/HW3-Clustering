@@ -64,6 +64,11 @@ class KMeans:
                 SSE_loss += distances[m][n]
             
             loss_over_time.append(SSE_loss)
+
+            # check if loss tolerance is reached
+            if len(loss_over_time) > 1 and abs(SSE_loss - loss_over_time[-2]) < self.tol:
+                break
+
         
         self.centroids = k_matrix
         self.loss_over_time = loss_over_time
