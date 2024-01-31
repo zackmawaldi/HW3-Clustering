@@ -9,3 +9,4 @@ from .utils import (
         plot_clusters,
         plot_multipanel)
 
+__version__ = "0.1.1"
